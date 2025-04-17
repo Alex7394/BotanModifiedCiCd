@@ -317,3 +317,17 @@ jobs:
 
       - name: Build and Test Botan
         run: python3 ./src/scripts/ci_build.py --cc='${{ matrix.compiler }}' --make-tool='${{ matrix.make_tool }}' --test-results-dir=junit_results ${{ matrix.target }}
+  dudect:
+    name: "Dudect Timing Test"
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Build Dependencies
+        run: sudo apt-get update && sudo apt-get install -y gcc make
+
+      - name: Build Dudect Example
+        run: gcc -O2 -std=c99 -lm src/tests/dudect_example/example.c -o dudect_example
+
+      - name: Run Dudect
+        run: ./dudect_example
