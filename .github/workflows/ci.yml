@@ -327,7 +327,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y gcc make
 
       - name: Build Dudect Example
-        run: gcc -O2 -std=c99 -lm src/tests/dudect_example/example.c -o dudect_example
+        run: gcc -O2 -std=c99 -lm src/tests/dudect_example/example.c -o dudect_example -lm
 
       - name: Run Dudect
         run: ./dudect_example
