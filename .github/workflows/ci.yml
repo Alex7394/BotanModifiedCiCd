@@ -317,6 +317,7 @@ jobs:
 
       - name: Build and Test Botan
         run: python3 ./src/scripts/ci_build.py --cc='${{ matrix.compiler }}' --make-tool='${{ matrix.make_tool }}' --test-results-dir=junit_results ${{ matrix.target }}
+  
   dudect:
     name: "Dudect Timing Test"
     runs-on: ubuntu-24.04
@@ -375,10 +376,10 @@ jobs:
 
       - name: Upload Dudect Results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dudect-results
-          path: build/*.xml  # falls du JUnit/XML erzeugst
+          path: build/*.xml
 
       #- name: Build Dudect Example
         #run: git clone https://github.com/oreparaz/dudect dudect && cd dudect && make && cd .. && export DUDECT_DIR=$PWD/dudect
