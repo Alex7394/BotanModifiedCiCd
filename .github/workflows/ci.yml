@@ -326,24 +326,30 @@ jobs:
 
       - name: Install Build Dependencies
         run: sudo apt-get update && sudo apt-get install -y gcc make git python3 python3-pip
+    
+      - name: Clone Dudect
+        run: git clone https://github.com/oreparaz/dudect.git
 
-      - name: Build Botan Shared Lib & Selftests
-        run: python3 src/scripts/ci_build.py --cc=gcc --make-tool=make shared
-
-      - name: Clone and Build Dudect
-        run: |
-          git clone https://github.com/oreparaz/dudect.git
-          make -C dudect
+      - name: Build Dudect Example
+        run: gcc -std=c99 src/tests/dudect_example/example.c -o dudect_example -lm
   
-      - name: Set Dudect in Path and Run Botan Dudect Tests
+      - name: Build Botan and Run Tests
         run: |
-          export PATH="$PWD/dudect:$PATH"
-          export DUDECT_DIR="$PWD/dudect"
-          python3 ./src/scripts/ci_build.py \
-            --cc=gcc \
-            --make-tool=make \
-            --test-results-dir=junit_results \
-            dudect
+          mkdir build
+          cd build
+          cmake ..
+          make
+          make tests
+  
+      - name: Run Dudect on RSA Test
+        run: ./dudect_example ./build/src/tests/test_rsa
+  
+      - name: Run Dudect on AES Test
+        run: ./dudect_example ./build/src/tests/test_aes
+  
+      - name: Run Dudect on ECDSA Test
+        run: ./dudect_example ./build/src/tests/test_ecdsa
+
 
       #- name: Build Dudect Example
         #run: git clone https://github.com/oreparaz/dudect dudect && cd dudect && make && cd .. && export DUDECT_DIR=$PWD/dudect
