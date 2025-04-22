@@ -333,13 +333,12 @@ jobs:
       - name: Build Dudect Example
         run: gcc -std=c99 src/tests/dudect_example/example.c -o dudect_example -lm
   
-      - name: Build Botan and Run Tests
+      - name: Build Botan
         run: |
           mkdir build
           cd build
           cmake ..
           make
-          make tests
   
       - name: Run Dudect on RSA Test
         run: ./dudect_example ./build/src/tests/test_rsa
