@@ -330,56 +330,20 @@ jobs:
       - name: Build Botan Shared Lib & Selftests
         run: python3 src/scripts/ci_build.py --cc=gcc --make-tool=make shared
 
-      - name: Clone & Build DUDect
+      - name: Clone and Build Dudect
         run: |
-          git clone https://github.com/oreparaz/dudect dudect
-          cd dudect
-          make
-          cd ..
-          export DUDECT_DIR=$PWD/dudect
-
-      - name: Run Botan Selftests under DUDect
+          git clone https://github.com/oreparaz/dudect.git
+          make -C dudect
+  
+      - name: Set Dudect in Path and Run Botan Dudect Tests
         run: |
-          cd build
-          python3 - << 'EOF'
-          import os, json, subprocess
-
-          # 1) lade build_config.json
-          cfg = json.load(open('build_config.json'))
-
-          # 2) Pfade zu DUDect-Header/Lib
-          inc = os.path.abspath('../dudect/include')
-          lib = os.path.abspath('../dudect/libdudect.a')
-
-          # 3) Harness und Lauf für jeden Selftest
-          for test in cfg.get('selftests', []):
-            name = test['name']
-            cfile = f"{name}_harness.c"
-            bin   = f"{name}_dudect"
-            # C‑Harness erzeugen
-            with open(cfile, 'w') as f:
-                f.write(f'''
-          #include "{inc}/dudect.h"
-          extern unsigned long {name}(void*);
-          int main() {{ return dudect_main({name}, NULL); }}
-          ''')
-            # kompilieren
-            subprocess.check_call([
-              "gcc", "-O2",
-              f"-I../include", f"-I{inc}",
-              cfile, lib, "-o", bin
-            ])
-            # laufen lassen
-            print(f"--- Running {bin} ---")
-            subprocess.call([f"./{bin}"])
-          EOF
-
-      - name: Upload Dudect Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dudect-results
-          path: build/*.xml
+          export PATH="$PWD/dudect:$PATH"
+          export DUDECT_DIR="$PWD/dudect"
+          python3 ./src/scripts/ci_build.py \
+            --cc=gcc \
+            --make-tool=make \
+            --test-results-dir=junit_results \
+            dudect
 
       #- name: Build Dudect Example
         #run: git clone https://github.com/oreparaz/dudect dudect && cd dudect && make && cd .. && export DUDECT_DIR=$PWD/dudect
