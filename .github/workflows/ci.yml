@@ -339,7 +339,7 @@ jobs:
           g++ -std=c++20 -O2 \
             -I"${BOTAN_INC}" \
             -I"${DUDECT_INC}" \
-            ${{ github.workspace }}/tests/dudect/ct_test.cpp -o ct_test_bin \
+            ${{ github.workspace }}/src/ct_test.cpp -o ct_test_bin \
             -L"${BOTAN_LIB}" -lbotan-3 -pthread -lm
       - name: ct_test execute
         run: taskset -c 2 timeout 300s ./ct_test
