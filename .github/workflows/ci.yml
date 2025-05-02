@@ -344,10 +344,13 @@ jobs:
         run: git clone https://github.com/oreparaz/dudect.git
       - name: DudeCT build
         run: make -C dudect
+
       - name: compile ct_test.cpp
         env:
-          BOTAN_INC: ${{ github.workspace }}/src/include
-          BOTAN_LIB: ${{ github.workspace }}/build/lib
+          #BOTAN_INC: ${{ github.workspace }}/src/include
+          #BOTAN_LIB: ${{ github.workspace }}/build/lib
+          BOTAN_INC: ${{ github.workspace }}/botan-install/include
+          BOTAN_LIB: ${{ github.workspace }}/botan-install/lib
           DUDECT_INC: ${{ github.workspace }}/dudect/src
         run: |
           g++ -std=c++20 -O2 \
@@ -355,8 +358,10 @@ jobs:
             -I"${DUDECT_INC}" \
             ${{ github.workspace }}/src/ct_test.cpp -o ct_test_bin \
             -L"${BOTAN_LIB}" -lbotan-3 -pthread -lm
+
       - name: ct_test execute
         run: taskset -c 2 timeout 300s ./ct_test
+
       - name: Print result
         run: |
           if [ $? -eq 0 ]; then echo "PASSED"; else echo "FAILED"; exit 1; fi
