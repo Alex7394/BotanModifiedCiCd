@@ -339,6 +339,10 @@ jobs:
         run: |
           echo "BOTAN_INC=${GITHUB_WORKSPACE}/botan-install/include" >> $GITHUB_ENV
           echo "BOTAN_LIB=${GITHUB_WORKSPACE}/botan-install/lib"    >> $GITHUB_ENV
+      - name: Debug includes
+        run: |
+          ls -l ${{ github.workspace }}/botan-install/include/botan/auto_rng.h || echo "auto_rng.h fehlt!"
+          ls -l ${{ github.workspace }}/botan-install/lib/
 
       - name: DudeCT clone
         run: git clone https://github.com/oreparaz/dudect.git
