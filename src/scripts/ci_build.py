@@ -74,6 +74,7 @@ def known_targets():
         'valgrind-full',
         'valgrind-ct',
         'valgrind-ct-full',
+        'dudect',
     ]
 
 def is_running_in_github_actions():
@@ -133,6 +134,8 @@ def build_targets(target, target_os):
         yield 'examples'
     if target in ['valgrind', 'valgrind-full', 'valgrind-ct', 'valgrind-ct-full']:
         yield 'ct_selftest'
+    if target in ['dudect']:
+        yield 'static'
 
 def determine_flags(target, target_os, target_cpu, target_cc, cc_bin, ccache,
                     root_dir, build_dir, test_results_dir, pkcs11_lib, use_gdb,
@@ -235,7 +238,7 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin, ccache,
     else:
         flags += ['--without-doc']
 
-    if target in ['docs', 'codeql', 'hybrid-tls13-interop-test', 'limbo']:
+    if target in ['docs', 'codeql', 'hybrid-tls13-interop-test', 'limbo', 'dudect']:
         test_cmd = None
 
     if target in ['codeql']:
@@ -489,6 +492,10 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin, ccache,
     if os.getenv('CXX') is None:
         flags += ['--cc-bin=%s' % (cc_bin)]
 
+    if target == 'dudect':
+        flags += ['--enable-modules=dudect,system_rng']
+        flags += ['--with-external-tests']
+
     if test_cmd is None:
         run_test_command = None
     else:
@@ -509,6 +516,15 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin, ccache,
             run_test_command = test_prefix + test_cmd
 
     return flags, run_test_command, make_prefix
+
+def run_dudect_test(build_dir):
+    dudect_bin = os.path.join(build_dir, 'dudect')
+    if not os.path.exists(dudect_bin):
+        raise RuntimeError("Dudect binary not found in build dir")
+
+    cmd = [dudect_bin, '--input-size=256']
+    print(f"> Running Dudect: {' '.join(cmd)}")
+    subprocess.check_call(cmd)
 
 def run_cmd(cmd, root_dir, build_dir):
     """

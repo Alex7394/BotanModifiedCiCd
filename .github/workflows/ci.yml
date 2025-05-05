@@ -220,39 +220,39 @@ jobs:
       - name: Build and Test Botan
         run: python3 ./source/src/scripts/ci_build.py --root-dir=${{ github.workspace }}/source --build-dir=${{ github.workspace }}/build --boringssl-dir=${{ github.workspace }}/boringssl --cc='${{ matrix.compiler }}' --make-tool='${{ matrix.make_tool }}' --test-results-dir=junit_results ${{ matrix.target }}
 
-      - name: Install prerequisites for dudect
-        if: matrix.target == 'dudect'
-        run: sudo apt-get update && sudo apt-get install -y util-linux coreutils
+      #- name: Install prerequisites for dudect
+      #  if: matrix.target == 'dudect'
+      #  run: sudo apt-get update && sudo apt-get install -y util-linux coreutils
 
-      - name: Clone dudect
-        if: matrix.target == 'dudect'
-        run: git clone https://github.com/oreparaz/dudect.git
+      #- name: Clone dudect
+      #  if: matrix.target == 'dudect'
+      #  run: git clone https://github.com/oreparaz/dudect.git
 
-      - name: Build dudect
-        if: matrix.target == 'dudect'
-        run: make -C dudect
+      #- name: Build dudect
+      #  if: matrix.target == 'dudect'
+      #  run: make -C dudect
 
-      - name: Compile ct_test.cpp
-        if: matrix.target == 'dudect'
-        env:
-          BOTAN_INC: ${{ github.workspace }}/build/include
-          BOTAN_LIB: ${{ github.workspace }}/build/lib
-          DUDECT_INC: ${{ github.workspace }}/dudect/src
-        run: |
-          g++ -std=c++20 -O2 \
-            -I"${BOTAN_INC}" \
-            -I"${DUDECT_INC}" \
-            ${{ github.workspace }}/source/src/ct_test.cpp -o ct_test_bin \
-            -L"${BOTAN_LIB}" -lbotan-3 -pthread -lm
+      #- name: Compile ct_test.cpp
+      #  if: matrix.target == 'dudect'
+      #  env:
+      #    BOTAN_INC: ${{ github.workspace }}/build/include
+      #    BOTAN_LIB: ${{ github.workspace }}/build/lib
+      #    DUDECT_INC: ${{ github.workspace }}/dudect/src
+      #  run: |
+      #    g++ -std=c++20 -O2 \
+      #      -I"${BOTAN_INC}" \
+      #      -I"${DUDECT_INC}" \
+      #      ${{ github.workspace }}/source/src/ct_test.cpp -o ct_test_bin \
+      #      -L"${BOTAN_LIB}" -lbotan-3 -pthread -lm
 
-      - name: Execute ct_test
-        if: matrix.target == 'dudect'
-        run: taskset -c 2 timeout 300s ./ct_test_bin
+      #- name: Execute ct_test
+      #  if: matrix.target == 'dudect'
+      #  run: taskset -c 2 timeout 300s ./ct_test_bin
 
-      - name: Check ct_test result
-        if: matrix.target == 'dudect'
-        run: |
-          if [ $? -eq 0 ]; then echo "PASSED"; else echo "FAILED"; exit 1; fi
+      #- name: Check ct_test result
+      #  if: matrix.target == 'dudect'
+      #  run: |
+      #    if [ $? -eq 0 ]; then echo "PASSED"; else echo "FAILED"; exit 1; fi
 
   specials:
     name: "Special"
@@ -406,6 +406,8 @@ jobs:
             -L"${BOTAN_LIB}" -lbotan-3 -pthread -lm
 
       - name: ct_test execute
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/botan-install/lib
         run: taskset -c 2 timeout 300s ./ct_test
 
       - name: Print result
