@@ -344,6 +344,11 @@ jobs:
           ls -l ${{ github.workspace }}/botan-install/include/botan/auto_rng.h || echo "auto_rng.h fehlt!"
           ls -l ${{ github.workspace }}/botan-install/lib/
 
+      - name: Suche nach auto_rng.h
+        run: find ${{ github.workspace }} -name auto_rng.h || echo "Nicht gefunden"
+      - name: Liste aller botan/*.h Dateien
+        run: find ${{ github.workspace }}/botan-install/include -name "*.h"
+
       - name: DudeCT clone
         run: git clone https://github.com/oreparaz/dudect.git
       - name: DudeCT build
