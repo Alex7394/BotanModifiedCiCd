@@ -409,8 +409,8 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin, ccache,
     else:
         # Flags specific to native targets
 
-        if target_os in ['osx', 'linux']:
-            flags += ['--with-bzip2', '--with-sqlite', '--with-zlib']
+        #if target_os in ['osx', 'linux']:
+        #    flags += ['--with-bzip2', '--with-sqlite', '--with-zlib']
 
         if target_os in ['osx', 'ios']:
             flags += ['--with-commoncrypto']
@@ -443,8 +443,8 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin, ccache,
                 # as per: https://stackoverflow.com/questions/38770895/how-to-fix-undefined-reference-to-getacceptexsockaddrs-boost-asio-in-clion#comment105791579_38771260
                 flags += ['--ldflags=-static -lwsock32']
 
-        if target_os == 'linux':
-            flags += ['--with-lzma']
+        #if target_os == 'linux':
+        #    flags += ['--with-lzma']
 
         if is_running_in_github_actions() and 'BOTAN_TPM2_ENABLED' in os.environ:
             flags += ['--with-tpm2']
@@ -493,8 +493,7 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin, ccache,
         flags += ['--cc-bin=%s' % (cc_bin)]
 
     if target == 'dudect':
-        flags += ['--enable-modules=dudect,system_rng']
-        flags += ['--with-external-tests']
+        flags += ['--extra-cxxflags=-DDUDECT_IMPLEMENTATION', '--minimized-build', '--enable-modules=system_rng,auto_rng,rsa,eme_pkcs1']
 
     if test_cmd is None:
         run_test_command = None
@@ -803,7 +802,8 @@ def main(args=None):
             if options.compiler_cache is not None:
                 cmds.append([options.compiler_cache, '--show-stats'])
 
-            make_targets = ['libs', 'tests', 'cli']
+            #make_targets = ['libs', 'tests', 'cli']
+            make_targets = ['libs']
 
             if target in ['coverage', 'fuzzers']:
                 make_targets += ['fuzzer_corpus_zip', 'fuzzers']
@@ -923,6 +923,9 @@ def main(args=None):
 
         if target in ['shared', 'coverage'] and not (options.os == 'windows' and options.cpu == 'x86'):
             cmds.append([py_interp, '-b'] + python_tests)
+        
+        if target in ['dudect']:
+            cmds.append(['bash', os.path.join(root_dir, 'src/ct_run.sh')])
 
         if target in ['shared', 'static']:
             cmds.append(make_cmd + ['install'])
